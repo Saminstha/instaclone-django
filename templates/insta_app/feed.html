@@ -1,0 +1,12 @@
+<h1>Instagram Feed</h1>
+
+{% for post in posts %}
+  <div>
+    <h4>{{ post.user.username }}</h4>
+    <img src="{{ post.image.url }}" width="300">
+    <p>{{ post.caption }}</p>
+    <hr>
+  </div>
+{% empty %}
+  <p>No posts yet.</p>
+{% endfor %}
