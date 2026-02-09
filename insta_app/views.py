@@ -1,14 +1,14 @@
-from django.views.generic import ListView, CreateView, TemplateView
+from django.views.generic import ListView, CreateView, TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 
-from .models import Post, Follow
+from .models import Post, Follow, Profile
 from .forms import UserUpdateForm, ProfileUpdateForm
 
 
-# 🏠 FEED VIEW
+#  FEED VIEW
 class FeedView(ListView):
     model = Post
     template_name = 'insta_app/feed.html'
@@ -16,7 +16,7 @@ class FeedView(ListView):
     ordering = ['-created_at']
 
 
-# ➕ CREATE POST
+#  CREATE POST
 class CreatePostView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['image', 'caption']
@@ -28,7 +28,7 @@ class CreatePostView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# 👤 PROFILE (Logged-in User)
+#  PROFILE (Logged-in User)
 class ProfileDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'insta_app/profile.html'
 
@@ -45,7 +45,7 @@ class ProfileDetailView(LoginRequiredMixin, TemplateView):
         return context
 
 
-# ✏️ EDIT PROFILE
+#  EDIT PROFILE
 class ProfileUpdateView(LoginRequiredMixin, TemplateView):
     template_name = 'insta_app/edit_profile.html'
 
@@ -75,3 +75,24 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
             'user_form': user_form,
             'profile_form': profile_form
         })
+
+
+class UserProfileView(DetailView):
+    model = Profile
+    template_name = 'insta_app/user_profile.html'
+    context_object_name = 'profile'
+
+    def get_object(self):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        return get_object_or_404(Profile, user=user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.get_object()
+
+        context['posts'] = Post.objects.filter(user=profile.user)
+        context['posts_count'] = context['posts'].count()
+        context['followers_count'] = profile.followers.count()
+        context['following_count'] = profile.following.count()
+
+        return context

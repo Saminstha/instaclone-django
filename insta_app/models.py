@@ -8,16 +8,21 @@ from django.core.exceptions import ValidationError
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True)
-    profile_image = models.ImageField(
-        upload_to='profiles/',
-        default='profiles/default.png'
-    )
+    full_name = models.CharField(max_length=100, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    bio = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profiles/', default='profiles/default.png')
+
+    # 🔥 Follow system
+    followers = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="following",
+        blank=True
+    )
 
     def __str__(self):
         return self.user.username
-    
 #post
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
