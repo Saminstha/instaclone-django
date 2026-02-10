@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="row align-items-center">
+
+    <div class="col-md-3 text-center">
+      <img src="{{ profile.profile_picture.url }}"
+           class="rounded-circle"
+           width="150" height="150">
+    </div>
+
+    <div class="col-md-9">
+      <h3>{{ profile.user.username }}</h3>
+
+      <div class="d-flex gap-4 my-2">
+        <span><strong>{{ posts_count }}</strong> posts</span>
+        <span><strong id="followers-count">{{ followers_count }}</strong> followers</span>
+        <span><strong>{{ following_count }}</strong> following</span>
+      </div>
+
+      <p class="fw-bold">{{ profile.full_name }}</p>
+      <p>{{ profile.bio }}</p>
+
+      {% if user.is_authenticated and user != profile.user %}
+        <button
+            id="follow-btn"
+            class="btn btn-sm {% if profile in user.profile.following.all %}btn-outline-secondary{% else %}btn-primary{% endif %}"
+            data-username="{{ profile.user.username }}"
+        >
+            {% if profile in user.profile.following.all %}
+                Unfollow
+            {% else %}
+                Follow
+            {% endif %}
+        </button>
+      {% endif %}
+
+
+  </div>
+
+  <hr>
+
+  <div class="row">
+    {% for post in posts %}
+      <div class="col-md-4 mb-3">
+        <img src="{{ post.image.url }}" class="img-fluid">
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('follow-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        const username = btn.dataset.username;
+
+        fetch(`/u/${username}/follow/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const followersCount = document.getElementById('followers-count');
+
+            if (data.followed) {
+                btn.textContent = 'Unfollow';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-secondary');
+            } else {
+                btn.textContent = 'Follow';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-primary');
+            }
+
+            followersCount.textContent = data.followers_count;
+        });
+    });
+});
+</script>
+
+
+{% endblock %}

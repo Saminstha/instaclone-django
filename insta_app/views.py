@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from django.views import View
 from django.views.generic import ListView, CreateView, TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -29,25 +31,27 @@ class CreatePostView(LoginRequiredMixin, CreateView):
 
 
 #  PROFILE (Logged-in User)
+
 class ProfileDetailView(LoginRequiredMixin, TemplateView):
-    template_name = 'insta_app/profile.html'
+    template_name = 'profile/profile.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
+        profile = self.request.user.profile
 
-        context['profile_user'] = user
-        context['posts'] = Post.objects.filter(user=user)
-        context['posts_count'] = Post.objects.filter(user=user).count()
-        context['followers_count'] = Follow.objects.filter(following=user).count()
-        context['following_count'] = Follow.objects.filter(follower=user).count()
+        context['profile'] = profile
+        context['posts'] = Post.objects.filter(user=self.request.user)
+        context['posts_count'] = context['posts'].count()
+        context['followers_count'] = profile.followers.count()
+        context['following_count'] = profile.following.count()
 
         return context
 
 
+
 #  EDIT PROFILE
 class ProfileUpdateView(LoginRequiredMixin, TemplateView):
-    template_name = 'insta_app/edit_profile.html'
+    template_name = 'profile/edit_profile.html'
 
     def get(self, request, *args, **kwargs):
         user_form = UserUpdateForm(instance=request.user)
@@ -79,7 +83,7 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
 
 class UserProfileView(DetailView):
     model = Profile
-    template_name = 'insta_app/user_profile.html'
+    template_name = 'profile/user_profile.html'
     context_object_name = 'profile'
 
     def get_object(self):
@@ -96,3 +100,24 @@ class UserProfileView(DetailView):
         context['following_count'] = profile.following.count()
 
         return context
+    
+    
+    
+    
+class FollowToggleView(LoginRequiredMixin, View):
+    def post(self, request, username):
+        target_user = get_object_or_404(User, username=username)
+        target_profile = target_user.profile
+        my_profile = request.user.profile
+
+        if target_profile in my_profile.following.all():
+            my_profile.following.remove(target_profile)
+            followed = False
+        else:
+            my_profile.following.add(target_profile)
+            followed = True
+
+        return JsonResponse({
+            'followed': followed,
+            'followers_count': target_profile.followers.count()
+        })
