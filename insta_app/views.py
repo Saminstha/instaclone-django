@@ -6,14 +6,15 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 
-from .models import Post, Follow, Profile
+from .models import Post, Follow, Profile, Comment
 from .forms import UserUpdateForm, ProfileUpdateForm
+
 
 
 #  FEED VIEW
 class FeedView(ListView):
     model = Post
-    template_name = 'insta_app/feed.html'
+    template_name = 'post/feed.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
 
@@ -22,7 +23,7 @@ class FeedView(ListView):
 class CreatePostView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['image', 'caption']
-    template_name = 'insta_app/create_post.html'
+    template_name = 'post/create_post.html'
     success_url = reverse_lazy('feed')
 
     def form_valid(self, form):
@@ -121,3 +122,40 @@ class FollowToggleView(LoginRequiredMixin, View):
             'followed': followed,
             'followers_count': target_profile.followers.count()
         })
+
+
+class LikeToggleView(LoginRequiredMixin, View):
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+            liked = False
+        else:
+            post.likes.add(request.user)
+            liked = True
+
+        return JsonResponse({
+            'liked': liked,
+            'likes_count': post.likes.count()
+        })
+
+
+class AddCommentView(LoginRequiredMixin, CreateView):
+    model = Comment
+    fields = ['text']
+
+    def form_valid(self, form):
+        post = get_object_or_404(Post, id=self.kwargs['post_id'])
+        form.instance.user = self.request.user
+        form.instance.post = post
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('feed')
+    
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = "post/post_detail.html"
+    context_object_name = "post"

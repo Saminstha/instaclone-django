@@ -1,0 +1,31 @@
+body {
+            background-color: #fafafa;
+        }
+
+        /* Navbar */
+        .insta-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dbdbdb;
+        }
+
+        /* Post cards */
+        .insta-card {
+            border: 1px solid #dbdbdb;
+            border-radius: 0;
+            background-color: #ffffff;
+        }
+
+        /* Username style */
+        .username {
+            font-weight: 600;
+        }
+
+        /* Links */
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
