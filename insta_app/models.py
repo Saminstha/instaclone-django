@@ -38,6 +38,9 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post by {self.user.username}"
+    
+    class Meta:
+        ordering = ['-created_at']
 
 
 #likes
