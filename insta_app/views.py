@@ -83,17 +83,24 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
 
 
 class UserProfileView(DetailView):
-    model = User
-    template_name = "post/profile.html"
-    context_object_name = "profile_user"
-    slug_field = "username"
-    slug_url_kwarg = "username"
+    model = Profile
+    template_name = 'profile/user_profile.html'
+    context_object_name = 'profile'
+
+    def get_object(self):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        return get_object_or_404(Profile, user=user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["posts"] = Post.objects.filter(user=self.object)   
-        return context
-    
+        profile = self.get_object()
+
+        context['posts'] = Post.objects.filter(user=profile.user).order_by('-created_at')
+        context['posts_count'] = context['posts'].count()
+        context['followers_count'] = profile.followers.count()
+        context['following_count'] = profile.following.count()
+
+        return context    
     
     
 class FollowToggleView(LoginRequiredMixin, View):
