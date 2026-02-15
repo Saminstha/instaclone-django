@@ -1,13 +1,14 @@
 from django.http import JsonResponse
 from django.views import View
-from django.views.generic import ListView, CreateView, TemplateView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, TemplateView, DetailView, DeleteView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 
 from .models import Post, Follow, Profile, Comment
 from .forms import UserUpdateForm, ProfileUpdateForm
+from django.contrib import messages
 
 
 
@@ -157,3 +158,40 @@ class PostDetailView(DetailView):
     model = Post
     template_name = "post/post_detail.html"
     context_object_name = "post"
+    
+    
+class EditPostView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    fields = ['caption']
+    template_name = 'profile/edit_post.html'
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.user
+
+    def form_valid(self, form):
+        messages.success(self.request, "Post edited successfully.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('user_profile', kwargs={
+            'username': self.request.user.username
+        })
+
+
+class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'profile/delete_post.html'
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Post deleted successfully.")
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('user_profile', kwargs={
+            'username': self.request.user.username
+        })
