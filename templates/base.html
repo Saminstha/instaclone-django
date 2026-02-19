@@ -60,41 +60,44 @@
             Instagram
         </a>
 
-        <!-- Navigation -->
-        <div>
-            <a href="{% url 'feed' %}" class="me-3">
-                <i class="bi bi-house-door"></i> Home
-            </a>
+        <!-- Right Side Navigation -->
+        <div class="d-flex align-items-center">
 
-            <a href="{% url 'create_post' %}" class="me-3">
-                <i class="bi bi-plus-square"></i> Create
+            <a href="{% url 'feed' %}" class="me-3">
+                <i class="bi bi-house-door"></i>
             </a>
 
             {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}">
+                <a href="{% url 'create_post' %}" class="me-3">
+                    <i class="bi bi-plus-square"></i>
+                </a>
+
+                <a href="{% url 'profile' %}" class="me-3">
                     <i class="bi bi-person-circle"></i>
                     {{ user.username }}
                 </a>
+
+                <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link text-danger p-0">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
+
             {% else %}
-                <a href="#">Login</a>
+                <a href="{% url 'login' %}" class="me-3">
+                    Login
+                </a>
+                <a href="{% url 'register' %}">
+                    Register
+                </a>
             {% endif %}
 
         </div>
 
-        {% if messages %}
-        <div class="container mt-2">
-            {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close"
-                        data-bs-dismiss="alert"></button>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
     </div>
 </nav>
+
 
 <!-- Main Content -->
 <div class="container mt-4" style="max-width: 600px;">

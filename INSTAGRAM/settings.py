@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'insta_app'
+    'insta_app',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -120,4 +121,8 @@ STATICFILES_DIRS = ['static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_REDIRECT_URL = 'feed'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
 

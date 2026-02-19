@@ -8,7 +8,7 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
         help_texts = {
-            'username': '',  # removes default Django hint text
+            'username': '',  
         }
 
 
