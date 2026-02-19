@@ -101,5 +101,57 @@
     {% endfor %}
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const likeButtons = document.querySelectorAll('.like-btn');
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+
+            const postId = this.dataset.postId;
+
+            fetch(`/post/${postId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const likesCount = this.closest('.d-flex')
+                    .querySelector('.likes-count');
+
+                likesCount.textContent = data.likes_count;
+
+                if (data.liked) {
+                    this.textContent = '❤️';
+                } else {
+                    this.textContent = '🤍';
+                }
+            });
+
+        });
+    });
+
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 
 {% endblock %}
