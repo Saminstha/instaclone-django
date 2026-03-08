@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from .models import Post, Follow, Profile, Comment
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
+from django.db.models import Q
 
 
 
@@ -197,3 +198,26 @@ class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return reverse_lazy('user_profile', kwargs={
             'username': self.request.user.username
         })
+        
+        
+
+
+class SearchView(LoginRequiredMixin, TemplateView):
+    template_name = "search/search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        query = self.request.GET.get('q')
+        results = []
+
+        if query:
+            results = Profile.objects.filter(
+                Q(user__username__icontains=query) |
+                Q(full_name__icontains=query)
+            )
+
+        context['query'] = query
+        context['results'] = results
+
+        return context

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card insta-card">
+    <div class="card-body">
+
+        <h5 class="mb-3">
+            Search Results for "{{ query }}"
+        </h5>
+
+        {% if results %}
+
+            {% for profile in results %}
+
+            <div class="d-flex align-items-center mb-3">
+
+                <img src="{{ profile.profile_picture.url }}"
+                     class="rounded-circle me-3"
+                     width="45"
+                     height="45">
+
+                <div>
+                    <a href="{% url 'user_profile' profile.user.username %}"
+                       class="fw-bold text-dark text-decoration-none">
+                        {{ profile.user.username }}
+                    </a>
+
+                    <div class="text-muted small">
+                        {{ profile.full_name }}
+                    </div>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="text-muted">No users found.</p>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

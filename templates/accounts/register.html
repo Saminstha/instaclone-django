@@ -2,7 +2,6 @@
 {% block content %}
 
 <div class="container mt-5" style="max-width: 400px;">
-
     <div class="card p-4 shadow-sm">
         <h4 class="text-center mb-4">Sign Up</h4>
 
@@ -20,6 +19,21 @@
                 {% if form.username.errors %}
                     <div class="text-danger small mt-1">
                         {{ form.username.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Full Name -->
+            <div class="mb-3">
+                <input type="text"
+                       name="full_name"
+                       class="form-control"
+                       placeholder="Full Name"
+                       value="{{ form.full_name.value|default:'' }}"
+                       required>
+                {% if form.full_name.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.full_name.errors.0 }}
                     </div>
                 {% endif %}
             </div>
@@ -70,7 +84,6 @@
             <button type="submit" class="btn btn-primary w-100">
                 Sign Up
             </button>
-
         </form>
 
         <hr>
@@ -81,9 +94,7 @@
                 <a href="{% url 'login' %}">Login</a>
             </small>
         </div>
-
     </div>
-
 </div>
 
 {% endblock %}

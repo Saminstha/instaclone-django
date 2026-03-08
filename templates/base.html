@@ -60,6 +60,17 @@
             Instagram
         </a>
 
+        <!-- Search Form -->
+         {% if user.is_authenticated %}
+            <form class="d-flex" method="GET" action="{% url 'search' %}">
+                <input class="form-control me-2"
+                    type="search"
+                    placeholder="Search users..."
+                    name="q"
+                    required>
+            </form>
+        {% endif %}
+        
         <!-- Right Side Navigation -->
         <div class="d-flex align-items-center">
 
