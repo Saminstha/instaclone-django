@@ -26,9 +26,11 @@
                         {{ profile.user.username }}
                     </a>
 
+                    {% if profile.full_name %}
                     <div class="text-muted small">
                         {{ profile.full_name }}
                     </div>
+                    {% endif %}
                 </div>
 
             </div>
