@@ -76,13 +76,15 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+
+            messages.success(request, "Profile updated successfully.")
+
             return redirect('profile')
 
         return self.render_to_response({
             'user_form': user_form,
             'profile_form': profile_form
         })
-
 
 class UserProfileView(DetailView):
     model = Profile
@@ -198,7 +200,6 @@ class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return reverse_lazy('user_profile', kwargs={
             'username': self.request.user.username
         })
-        
         
 
 
