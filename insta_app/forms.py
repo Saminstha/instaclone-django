@@ -1,8 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Comment
+from .models import Post, Profile, Comment
 
 
+class PostForm(forms.ModelForm):
+
+    class Meta:
+        model = Post
+        fields = ['caption']
+        
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
