@@ -35,10 +35,10 @@
       {% if user.is_authenticated and user != profile.user %}
         <button
             id="follow-btn"
-            class="btn btn-sm {% if profile in user.profile.following.all %}btn-outline-secondary{% else %}btn-primary{% endif %}"
+            class="btn btn-sm {% if is_following %}btn-outline-secondary{% else %}btn-primary{% endif %}"
             data-username="{{ profile.user.username }}"
         >
-            {% if profile in user.profile.following.all %}
+            {% if is_following %}
                 Unfollow
             {% else %}
                 Follow

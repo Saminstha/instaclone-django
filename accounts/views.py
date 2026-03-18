@@ -4,10 +4,8 @@ from django.shortcuts import render
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
-
 from .forms import RegisterForm
 
 class RegisterView(CreateView):

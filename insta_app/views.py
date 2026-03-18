@@ -44,8 +44,13 @@ class ProfileDetailView(LoginRequiredMixin, TemplateView):
         context['profile'] = profile
         context['posts'] = Post.objects.filter(user=self.request.user)
         context['posts_count'] = context['posts'].count()
-        context['followers_count'] = profile.followers.count()
-        context['following_count'] = profile.following.count()
+        context['followers_count'] = Follow.objects.filter(
+            following=self.request.user
+        ).count()
+
+        context['following_count'] = Follow.objects.filter(
+            follower=self.request.user
+        ).count()
 
         return context
 
@@ -94,37 +99,49 @@ class UserProfileView(DetailView):
         user = get_object_or_404(User, username=self.kwargs['username'])
         return get_object_or_404(Profile, user=user)
 
+     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         profile = self.get_object()
 
         context['posts'] = Post.objects.filter(user=profile.user).order_by('-created_at')
         context['posts_count'] = context['posts'].count()
-        context['followers_count'] = profile.followers.count()
-        context['following_count'] = profile.following.count()
+        context['followers_count'] = Follow.objects.filter(following=profile.user).count()
+        context['following_count'] = Follow.objects.filter(follower=profile.user).count()
+        
+        if self.request.user.is_authenticated:
+            context['is_following'] = Follow.objects.filter(
+                follower=self.request.user,
+                following=profile.user
+            ).exists()
+        else:
+            context['is_following'] = False
 
         return context    
-    
     
 class FollowToggleView(LoginRequiredMixin, View):
     def post(self, request, username):
         target_user = get_object_or_404(User, username=username)
-        target_profile = target_user.profile
-        my_profile = request.user.profile
 
-        if target_profile in my_profile.following.all():
-            my_profile.following.remove(target_profile)
+        follow, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=target_user
+        )
+
+        if not created:
+            follow.delete()
             followed = False
         else:
-            my_profile.following.add(target_profile)
             followed = True
+
+        followers_count = Follow.objects.filter(
+            following=target_user
+        ).count()
 
         return JsonResponse({
             'followed': followed,
-            'followers_count': target_profile.followers.count()
+            'followers_count': followers_count
         })
-
-
 
 
 class LikeToggleView(LoginRequiredMixin, View):

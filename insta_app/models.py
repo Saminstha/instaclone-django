@@ -14,16 +14,9 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', default='profiles/default.png')
 
-    # 🔥 Follow system
-    followers = models.ManyToManyField(
-        "self",
-        symmetrical=False,
-        related_name="following",
-        blank=True
-    )
-
     def __str__(self):
         return self.user.username
+    
 #post
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -44,35 +37,39 @@ class Post(models.Model):
 
 
 
-
-
 #follow
 class Follow(models.Model):
     follower = models.ForeignKey(
         User,
-        related_name='following',
+        related_name='following_relations',
         on_delete=models.CASCADE
     )
     following = models.ForeignKey(
         User,
-        related_name='followers',
+        related_name='follower_relations',
         on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('follower', 'following')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['follower', 'following'],
+                name='unique_follow'
+            )
+        ]
+        ordering = ['-created_at']
 
-    
-
-    def save(self, *args, **kwargs):
+    def clean(self):
         if self.follower == self.following:
             raise ValidationError("Users cannot follow themselves.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
         super().save(*args, **kwargs)
 
-
     def __str__(self):
-        return f"{self.follower} follows {self.following}"
+        return f"{self.follower.username} follows {self.following.username}"
 
 
 class Comment(models.Model):

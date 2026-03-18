@@ -29,3 +29,9 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.insta-profile-card {
+    border: none;
+    border-bottom: 1px solid #dbdbdb;
+    border-radius: 0;
+}
