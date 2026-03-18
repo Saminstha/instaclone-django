@@ -14,12 +14,11 @@ from django.db.models import Q
 
 
 #  FEED VIEW
-class FeedView(ListView):
+class FeedView(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'post/feed.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
-
 
 #  CREATE POST
 class CreatePostView(LoginRequiredMixin, CreateView):
